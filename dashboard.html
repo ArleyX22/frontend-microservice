@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wishlist Game Saya</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: #0c0c1a;
+      color: #e0e0ff;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #333366;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #64ffda;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-add {
+      background: linear-gradient(90deg, #4a4aff, #64ffda);
+      color: #0c0c1a;
+    }
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(100, 255, 218, 0.4);
+    }
+    .btn-edit { background: #4a4aff; color: white; }
+    .btn-delete { background: #ff4a7d; color: white; }
+
+    .form-section {
+      background: rgba(20, 20, 40, 0.7);
+      border: 1px solid #4a4aff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      margin-bottom: 6px;
+      color: #a0a0ff;
+    }
+    .form-group input, .form-group textarea {
+      padding: 8px 12px;
+      background: rgba(30, 30, 60, 0.8);
+      border: 1px solid #4a4aff;
+      border-radius: 6px;
+      color: white;
+    }
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .game-card {
+      background: rgba(25, 25, 50, 0.8);
+      border: 1px solid #4a4aff;
+      border-radius: 12px;
+      padding: 16px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px rgba(74, 74, 255, 0.4);
+    }
+    .game-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #64ffda;
+      margin-bottom: 8px;
+    }
+    .game-genre {
+      color: #a0a0ff;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .game-price {
+      color: #64ffda;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .game-detail {
+      color: #d0d0ff;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #6666aa;
+      grid-column: 1 / -1;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎮 Wishlist Game Saya</h1>
+    <button class="btn btn-add" onclick="showForm()">+ Tambah Game</button>
+        <button class="btn btn-delete" onclick="logout()" style="margin-left:10px;">Logout</button>
+  </header>
+
+  <div class="form-section" id="gameForm">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="nama">Nama Game</label>
+        <input type="text" id="nama" placeholder="Contoh: Elden Ring" />
+      </div>
+      <div class="form-group">
+        <label for="genre">Genre</label>
+        <input type="text" id="genre" placeholder="RPG, FPS, dll" />
+      </div>
+      <div class="form-group">
+        <label for="harga">Harga (Rp)</label>
+        <input type="number" id="harga" placeholder="599000" min="0" step="1000" />
+      </div>
+      <div class="form-group">
+        <label for="detail">Detail Game</label>
+        <textarea id="detail" placeholder="Deskripsi singkat atau alasan wishlist..."></textarea>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-add" onclick="saveGame()">Simpan ke Wishlist</button>
+      <button class="btn" style="background:#555;" onclick="hideForm()">Batal</button>
+    </div>
+  </div>
+
+  <div class="games-grid" id="gamesList">
+    <!-- Game cards akan dimuat di sini -->
+  </div>
+
+  <script>
+    let token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+
+    async function api(url, options = {}) {
+      const headers = { 'Authorization': 'Bearer ' + token };
+      if (!options.headers) options.headers = {};
+      Object.assign(options.headers, headers);
+      return fetch(url, options);
+    }
+
+    async function loadGames() {
+      try {
+        const res = await api('https://game-mircroservice.vercel.app/api/games');
+        const games = await res.json();
+        const container = document.getElementById('gamesList');
+        if (games.length === 0) {
+          container.innerHTML = `<div class="empty-state">Belum ada game di wishlist.<br>Tambahkan game impianmu!</div>`;
+          return;
+        }
+        container.innerHTML = games.map(g => `
+          <div class="game-card">
+            <div class="game-name">${g.nama}</div>
+            <div class="game-genre">Genre: ${g.genre}</div>
+            <div class="game-price">Rp ${Number(g.harga).toLocaleString('id-ID')}</div>
+            <div class="game-detail">${g.detail}</div>
+            <div class="card-actions">
+              <button class="btn btn-edit" onclick="editGame(${g.id}, '${g.nama}', '${g.genre}', ${g.harga}, \`${g.detail}\`)">Edit</button>
+              <button class="btn btn-delete" onclick="deleteGame(${g.id})">Hapus</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('gamesList').innerHTML = '<div class="empty-state">Gagal memuat wishlist.</div>';
+      }
+    }
+
+    function showForm() {
+      document.getElementById('gameForm').style.display = 'block';
+      // Reset form
+      document.getElementById('nama').value = '';
+      document.getElementById('genre').value = '';
+      document.getElementById('harga').value = '';
+      document.getElementById('detail').value = '';
+      document.getElementById('gameForm').dataset.editId = '';
+    }
+
+    function hideForm() {
+      document.getElementById('gameForm').style.display = 'none';
+    }
+
+    function editGame(id, nama, genre, harga, detail) {
+      document.getElementById('nama').value = nama;
+      document.getElementById('genre').value = genre;
+      document.getElementById('harga').value = harga;
+      document.getElementById('detail').value = detail;
+      document.getElementById('gameForm').dataset.editId = id;
+      document.getElementById('gameForm').style.display = 'block';
+    }
+
+    async function saveGame() {
+      const id = document.getElementById('gameForm').dataset.editId;
+      const nama = document.getElementById('nama').value;
+      const genre = document.getElementById('genre').value;
+      const harga = parseFloat(document.getElementById('harga').value);
+      const detail = document.getElementById('detail').value;
+
+      if (!nama || !genre || isNaN(harga) || harga < 0 || !detail) {
+        alert('Harap isi semua kolom dengan benar');
+        return;
+      }
+
+      const payload = { nama, genre, harga, detail };
+      const url = id 
+        ? `https://game-mircroservice.vercel.app/api/games/${id}`
+        : 'https://game-mircroservice.vercel.app/api/games';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await api(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        hideForm();
+        loadGames();
+      } else {
+        alert('Gagal menyimpan game');
+      }
+    }
+
+    async function deleteGame(id) {
+      if (!confirm('Hapus game ini dari wishlist?')) return;
+      const res = await api(`https://game-mircroservice.vercel.app/api/games/${id}`, { method: 'DELETE' });
+      if (res.ok) loadGames();
+      else alert('Gagal menghapus game');
+    }
+
+     function logout() {
+    if (!confirm('Yakin ingin logout?')) return;
+    localStorage.removeItem('token');
+    window.location.href = '';
+    }
+
+    async function api(url, options = {}) {
+    const headers = { 'Authorization': 'Bearer ' + token };
+    if (!options.headers) options.headers = {};
+    Object.assign(options.headers, headers);
+    return fetch(url, options);
+    }
+
+    loadGames();
+  </script>
+</body>
+</html>

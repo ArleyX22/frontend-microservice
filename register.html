@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login • Game Wishlist</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      background: #0f0f1b;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, transparent 20%, #0f0f1b 100%);
+      z-index: -1;
+    }
+    .login-card {
+      background: rgba(15, 15, 35, 0.85);
+      border: 1px solid #4a4aff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 0 20px rgba(74, 74, 255, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1.8rem;
+      font-weight: 700;
+      font-size: 1.9rem;
+      color: #64ffda;
+      text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+    }
+    .input-group {
+      margin-bottom: 1.3rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      color: #a0a0ff;
+    }
+    input {
+      width: 100%;
+      padding: 0.85rem;
+      background: rgba(30, 30, 60, 0.7);
+      border: 1px solid #4a4aff;
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #64ffda;
+      box-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
+    }
+    button {
+      width: 100%;
+      padding: 0.95rem;
+      background: linear-gradient(90deg, #4a4aff, #64ffda);
+      color: #0f0f1b;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.02);
+    }
+    .footer-link {
+      text-align: center;
+      margin-top: 1.6rem;
+      font-size: 0.95rem;
+    }
+    .footer-link a {
+      color: #64ffda;
+      text-decoration: none;
+    }
+    .error {
+      color: #ff6b9d;
+      text-align: center;
+      margin-bottom: 1rem;
+      min-height: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>🎮 Register ke Wishlist</h1>
+    <div class="input-group">
+  <label for="username">Username</label>
+  <input type="text" id="username" placeholder="Pilih username unik" />
+</div>
+<div class="input-group">
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="contoh@email.com" />
+</div>
+<div class="input-group">
+  <label for="alamat">Alamat Lengkap</label>
+  <input type="text" id="alamat" placeholder="Jl. Contoh No. 123, Kota" />
+</div>
+<div class="input-group">
+  <label for="password">Password</label>
+  <input type="password" id="password" placeholder="Minimal 6 karakter" />
+</div>
+
+<script>
+  async function register() {
+    const u = document.getElementById('username').value;
+    const e = document.getElementById('email').value;
+    const a = document.getElementById('alamat').value;
+    const p = document.getElementById('password').value;
+    const err = document.getElementById('error');
+    err.textContent = '';
+
+    if (!u || !e || !a || !p || p.length < 6) {
+      return err.textContent = 'Isi semua kolom (password min 6 karakter)';
+    }
+
+    try {
+      const res = await fetch('https://auth-mircoservice.vercel.app/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, email: e, alamat: a, password: p })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('Pendaftaran berhasil! Silakan login.');
+        window.location.href = '';
+      } else {
+        err.textContent = data.error || 'Pendaftaran gagal';
+      }
+    } catch (e) {
+      err.textContent = 'Kesalahan koneksi';
+    }
+  }
+</script>
+</body>
+</html>
