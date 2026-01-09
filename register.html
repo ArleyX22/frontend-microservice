@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login • Game Wishlist</title>
+  <title>Register • Game Wishlist</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
     body {
@@ -35,8 +35,6 @@
       max-width: 420px;
       box-shadow: 0 0 20px rgba(74, 74, 255, 0.3);
       backdrop-filter: blur(10px);
-      position: relative;
-      z-index: 10;
     }
     h1 {
       text-align: center;
@@ -70,23 +68,20 @@
       box-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
     }
     button {
-    width: 100%;
-    padding: 0.9rem;
-    background: #4dabf7; /* 🔥 ganti warna */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px; /* 🔥 kasih jarak */
-    transition: background 0.3s;
-}
-
-button:hover {
-  background: #339af0;
-}
-
+      width: 100%;
+      padding: 0.95rem;
+      background: linear-gradient(90deg, #4a4aff, #64ffda);
+      color: #0f0f1b;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.02);
+    }
     .footer-link {
       text-align: center;
       margin-top: 1.6rem;
@@ -107,53 +102,67 @@ button:hover {
 <body>
   <div class="login-card">
     <h1>🎮 Register ke Wishlist</h1>
+    <div class="error" id="error"></div>
+
     <div class="input-group">
-  <label for="username">Username</label>
-  <input type="text" id="username" placeholder="Pilih username unik" />
-</div>
-<div class="input-group">
-  <label for="email">Email</label>
-  <input type="email" id="email" placeholder="contoh@email.com" />
-</div>
-<div class="input-group">
-  <label for="alamat">Alamat Lengkap</label>
-  <input type="text" id="alamat" placeholder="Jl. Contoh No. 123, Kota" />
-</div>
-<div class="input-group">
-  <label for="password">Password</label>
-  <input type="password" id="password" placeholder="Minimal 6 karakter" />
-</div>
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Pilih username unik" autocomplete="username" />
+    </div>
 
-<script>
-  async function register() {
-    const u = document.getElementById('username').value;
-    const e = document.getElementById('email').value;
-    const a = document.getElementById('alamat').value;
-    const p = document.getElementById('password').value;
-    const err = document.getElementById('error');
-    err.textContent = '';
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="contoh@email.com" autocomplete="email" />
+    </div>
 
-    if (!u || !e || !a || !p || p.length < 6) {
-      return err.textContent = 'Isi semua kolom (password min 6 karakter)';
-    }
+    <div class="input-group">
+      <label for="alamat">Alamat Lengkap</label>
+      <input type="text" id="alamat" placeholder="Jl. Contoh No. 123, Kota" autocomplete="street-address" />
+    </div>
 
-    try {
-      const res = await fetch('https://auth-mircoservice.vercel.app/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, email: e, alamat: a, password: p })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert('Pendaftaran berhasil! Silakan login.');
-        window.location.href = '';
-      } else {
-        err.textContent = data.error || 'Pendaftaran gagal';
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Minimal 6 karakter" autocomplete="new-password" />
+    </div>
+
+    <button onclick="register()">Daftar Sekarang</button>
+
+    <div class="footer-link">
+      Sudah punya akun? <a href="">Login di sini</a>
+    </div>
+  </div>
+
+  <script>
+    async function register() {
+      const u = document.getElementById('username').value;
+      const e = document.getElementById('email').value;
+      const a = document.getElementById('alamat').value;
+      const p = document.getElementById('password').value;
+      const err = document.getElementById('error');
+      err.textContent = '';
+
+      if (!u || !e || !a || !p || p.length < 6) {
+        return err.textContent = 'Semua kolom wajib diisi, password minimal 6 karakter';
       }
-    } catch (e) {
-      err.textContent = 'Kesalahan koneksi';
+
+      try {
+        const res = await fetch('https://auth-service-steel.vercel.app/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, email: e, alamat: a, password: p })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert('Pendaftaran berhasil! Silakan login.');
+          window.location.href = '';
+        } else {
+          err.textContent = data.error || 'Pendaftaran gagal';
+        }
+      } catch (e) {
+        err.textContent = 'Kesalahan koneksi atau server tidak merespons';
+      }
     }
-  }
-</script>
+  </script>
 </body>
 </html>
