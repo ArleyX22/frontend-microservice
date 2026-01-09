@@ -35,6 +35,8 @@
       max-width: 420px;
       box-shadow: 0 0 20px rgba(74, 74, 255, 0.3);
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 10;
     }
     h1 {
       text-align: center;
@@ -68,20 +70,23 @@
       box-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
     }
     button {
-      width: 100%;
-      padding: 0.95rem;
-      background: linear-gradient(90deg, #4a4aff, #64ffda);
-      color: #0f0f1b;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.05rem;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    button:hover {
-      transform: scale(1.02);
-    }
+    width: 100%;
+    padding: 0.9rem;
+    background: #4dabf7; /* 🔥 ganti warna */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px; /* 🔥 kasih jarak */
+    transition: background 0.3s;
+}
+
+button:hover {
+  background: #339af0;
+}
+
     .footer-link {
       text-align: center;
       margin-top: 1.6rem;
