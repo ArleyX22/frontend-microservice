@@ -127,7 +127,7 @@
     <button onclick="register()">Daftar Sekarang</button>
 
     <div class="footer-link">
-      Sudah punya akun? <a href="">Login di sini</a>
+      Sudah punya akun? <a href="index.html">Login di sini</a>
     </div>
   </div>
 
@@ -155,7 +155,7 @@
 
         if (res.ok) {
           alert('Pendaftaran berhasil! Silakan login.');
-          window.location.href = '';
+          window.location.href = 'index.html';
         } else {
           err.textContent = data.error || 'Pendaftaran gagal';
         }
